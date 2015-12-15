@@ -12,7 +12,20 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
   std::string name  = clang_getCString( clang_getCursorSpelling( cursor ) );
 
   if( kind == CXCursorKind::CXCursor_FunctionDecl )
+  {
     std::cout << __PRETTY_FUNCTION__ << ": Detected a function declaration: " << name << std::endl;
+
+    CXSourceRange extent           = clang_getCursorExtent( cursor );
+    CXSourceLocation startLocation = clang_getRangeStart( extent );
+    CXSourceLocation endLocation   = clang_getRangeEnd( extent );
+
+    unsigned int startLine = 0, startColumn = 0;
+    unsigned int endLine   = 0, endColumn   = 0;
+
+    clang_getSpellingLocation( startLocation, nullptr, &startLine, &startColumn, nullptr );
+    clang_getSpellingLocation( endLocation,   nullptr, &endLine, &endColumn, nullptr );
+    std::cout << "  Extent: " << startLine << "," << startColumn <<  "--" << endLine << "," << endColumn << "\n";
+  }
 
   return CXChildVisit_Recurse;
 }
