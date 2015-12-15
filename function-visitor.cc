@@ -5,6 +5,9 @@
 
 CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientData clientData )
 {
+  if( clang_Location_isFromMainFile( clang_getCursorLocation( cursor ) ) == 0 )
+    return CXChildVisit_Continue;
+
   CXCursorKind kind = clang_getCursorKind( cursor );
   std::string name  = clang_getCString( clang_getCursorSpelling( cursor ) );
 
