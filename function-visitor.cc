@@ -29,9 +29,9 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
   CXCursorKind kind = clang_getCursorKind( cursor );
   std::string name  = clang_getCString( clang_getCursorSpelling( cursor ) );
 
-  if( kind == CXCursorKind::CXCursor_FunctionDecl )
+  if( kind == CXCursorKind::CXCursor_FunctionDecl || kind == CXCursorKind::CXCursor_CXXMethod )
   {
-    std::cout << __PRETTY_FUNCTION__ << ": Detected a function declaration: " << name << std::endl;
+    std::cerr << __PRETTY_FUNCTION__ << ": Detected a function declaration: " << name << std::endl;
 
     CXSourceRange extent           = clang_getCursorExtent( cursor );
     CXSourceLocation startLocation = clang_getRangeStart( extent );
@@ -42,7 +42,9 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
 
     clang_getSpellingLocation( startLocation, nullptr, &startLine, &startColumn, nullptr );
     clang_getSpellingLocation( endLocation,   nullptr, &endLine, &endColumn, nullptr );
-    std::cout << "  Extent: " << startLine << "," << startColumn <<  "--" << endLine << "," << endColumn << "\n";
+    std::cerr << "  Extent: " << startLine << "," << startColumn <<  "--" << endLine << "," << endColumn << "\n";
+
+    std::cout << "  " << name << ": " << endLine - startLine << "\n";
   }
 
   return CXChildVisit_Recurse;
@@ -54,7 +56,9 @@ int main( int argc, char** argv )
     return -1;
 
   auto resolvedPath = resolvePath( argv[1] );
-  std::cout << "Parsing " << resolvedPath << "...\n";
+  std::cerr << "Parsing " << resolvedPath << "...\n";
+
+  std::cout << resolvedPath << "\n";
 
   CXCompilationDatabase_Error compilationDatabaseError;
   CXCompilationDatabase compilationDatabase = clang_CompilationDatabase_fromDirectory( ".", &compilationDatabaseError );
@@ -62,7 +66,7 @@ int main( int argc, char** argv )
   CXCompileCommands compileCommands         = clang_CompilationDatabase_getCompileCommands( compilationDatabase, resolvedPath.c_str() );
 
   unsigned int numCompileCommands = clang_CompileCommands_getSize( compileCommands );
-  std::cout << "I have obtained " << numCompileCommands << " compile commands\n"; 
+  std::cerr << "I have obtained " << numCompileCommands << " compile commands\n"; 
 
   if( numCompileCommands == 0 )
     return -1;
@@ -71,7 +75,7 @@ int main( int argc, char** argv )
   CXCompileCommand compileCommand   = clang_CompileCommands_getCommand( compileCommands, 0 );
 
   unsigned int numArguments = clang_CompileCommand_getNumArgs( compileCommand );
-  std::cout << "Selected compile command has " << numArguments << " arguments\n";
+  std::cerr << "Selected compile command has " << numArguments << " arguments\n";
 
   // FIXME: This is as leaky as the roof in the shed at my parents where I used
   // to live
@@ -89,7 +93,7 @@ int main( int argc, char** argv )
     std::copy( strArgument.begin(), strArgument.end(),
                arguments[i] );
 
-    std::cout << "  " << strArgument << "\n";
+    std::cerr << "  " << strArgument << "\n";
 
     clang_disposeString( argument ); 
   }
