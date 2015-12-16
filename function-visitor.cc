@@ -69,46 +69,53 @@ int main( int argc, char** argv )
   std::cerr << "I have obtained " << numCompileCommands << " compile commands\n"; 
 
   if( numCompileCommands == 0 )
-    return -1;
-
-  // FIXME: Get the first compile command. I can always extend this later...
-  CXCompileCommand compileCommand   = clang_CompileCommands_getCommand( compileCommands, 0 );
-
-  unsigned int numArguments = clang_CompileCommand_getNumArgs( compileCommand );
-  std::cerr << "Selected compile command has " << numArguments << " arguments\n";
-
-  // FIXME: This is as leaky as the roof in the shed at my parents where I used
-  // to live
-  char** arguments = new char*[ numArguments ];
-
-  for( unsigned int i = 0; i < numArguments; i++ )
   {
-    CXString argument = clang_CompileCommand_getArg( compileCommand, i );
+    CXIndex index                     = clang_createIndex( false, true );
+    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, resolvedPath.c_str(), nullptr, 0, 0, 0, CXTranslationUnit_None );
 
-    std::string strArgument = clang_getCString( argument ); 
-    arguments[i]            = new char[ strArgument.size() + 1 ];
-    
-    std::fill( arguments[i], arguments[i] + strArgument.size() + 1, 0 );
+    CXCursor rootCursor = clang_getTranslationUnitCursor( translationUnit );
+    clang_visitChildren( rootCursor, functionVisitor, nullptr );
+  }
+  else
+  {
+    // FIXME: Get the first compile command. I can always extend this later...
+    CXCompileCommand compileCommand   = clang_CompileCommands_getCommand( compileCommands, 0 );
 
-    std::copy( strArgument.begin(), strArgument.end(),
-               arguments[i] );
+    unsigned int numArguments = clang_CompileCommand_getNumArgs( compileCommand );
+    std::cerr << "Selected compile command has " << numArguments << " arguments\n";
 
-    std::cerr << "  " << strArgument << "\n";
+    // FIXME: This is as leaky as the roof in the shed at my parents where I used
+    // to live
+    char** arguments = new char*[ numArguments ];
 
-    clang_disposeString( argument ); 
+    for( unsigned int i = 0; i < numArguments; i++ )
+    {
+      CXString argument = clang_CompileCommand_getArg( compileCommand, i );
+
+      std::string strArgument = clang_getCString( argument ); 
+      arguments[i]            = new char[ strArgument.size() + 1 ];
+      
+      std::fill( arguments[i], arguments[i] + strArgument.size() + 1, 0 );
+
+      std::copy( strArgument.begin(), strArgument.end(),
+                 arguments[i] );
+
+      std::cerr << "  " << strArgument << "\n";
+
+      clang_disposeString( argument ); 
+    }
+
+    CXIndex index                     = clang_createIndex( false, true );
+    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, 0, arguments, numArguments, 0, 0, CXTranslationUnit_None );
+
+    CXCursor rootCursor = clang_getTranslationUnitCursor( translationUnit );
+    clang_visitChildren( rootCursor, functionVisitor, nullptr );
+
+    clang_disposeTranslationUnit( translationUnit );
+    clang_disposeIndex( index );
   }
 
-  CXIndex index                     = clang_createIndex( false, true );
-  CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, 0, arguments, numArguments, 0, 0, CXTranslationUnit_None );
-
-  CXCursor rootCursor = clang_getTranslationUnitCursor( translationUnit );
-  clang_visitChildren( rootCursor, functionVisitor, nullptr );
-
   clang_CompileCommands_dispose( compileCommands );
-
-  clang_disposeTranslationUnit( translationUnit );
-  clang_disposeIndex( index );
-
   clang_CompilationDatabase_dispose( compilationDatabase );
   return 0;
 }
