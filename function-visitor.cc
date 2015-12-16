@@ -29,7 +29,7 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
   CXCursorKind kind = clang_getCursorKind( cursor );
   std::string name  = clang_getCString( clang_getCursorSpelling( cursor ) );
 
-  if( kind == CXCursorKind::CXCursor_FunctionDecl || kind == CXCursorKind::CXCursor_CXXMethod )
+  if( kind == CXCursorKind::CXCursor_FunctionDecl || kind == CXCursorKind::CXCursor_CXXMethod || kind == CXCursorKind::CXCursor_FunctionTemplate )
   {
     std::cerr << __PRETTY_FUNCTION__ << ": Detected a function declaration: " << name << std::endl;
 
