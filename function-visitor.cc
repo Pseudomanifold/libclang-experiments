@@ -5,21 +5,7 @@
 #include <iostream>
 #include <string>
 
-#include <limits.h>
-#include <stdlib.h>
-
-std::string resolvePath( const char* path )
-{
-  std::string result;
-
-  char* resolvedPath = new char[PATH_MAX];
-  auto resolved      = realpath( path, resolvedPath );
-  if( resolved )
-    result = resolvedPath;
-
-  delete[] resolvedPath;
-  return result;
-}
+#include "path_utilities.hh"
 
 char** makeFlags( const std::vector<std::string>& flags )
 {
