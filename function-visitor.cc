@@ -41,13 +41,13 @@ char** makeFlags( const std::vector<std::string>& flags )
 CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientData clientData )
 {
   if( clang_Location_isFromMainFile( clang_getCursorLocation( cursor ) ) == 0 )
-    return CXChildVisit_Continue;
+    return CXChildVisit_Recurse;
 
   CXCursorKind kind = clang_getCursorKind( cursor );
   CXString nameStr  = clang_getCursorSpelling( cursor );
- 
+
   std::string name  = clang_getCString( nameStr );
-  
+
   clang_disposeString( nameStr );
 
   if( kind == CXCursorKind::CXCursor_FunctionDecl || kind == CXCursorKind::CXCursor_CXXMethod || kind == CXCursorKind::CXCursor_FunctionTemplate )
@@ -106,7 +106,16 @@ int main( int argc, char** argv )
           "-I/usr/local/include",
           "-I/usr/lib/llvm-3.6/bin/../lib/clang/3.6.2/include",
           "-I/usr/include/x86_64-linux-gnu",
-          "-I/usr/include" };
+          "-I/usr/include",
+       "-I/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0",
+       "-I/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/x86_64-unknown-linux-gnu",
+       "-I/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/backward",
+       "-I/usr/local/include",
+       "-I/usr/bin/../lib/clang/3.7.0/include",
+       "-I/usr/include"
+       "-x",
+       "c++"
+      };
 
     auto rawFlags = makeFlags( flags );
 
