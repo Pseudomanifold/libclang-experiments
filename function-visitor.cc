@@ -21,13 +21,32 @@ std::string resolvePath( const char* path )
   return result;
 }
 
+char** makeFlags( const std::vector<std::string> flags )
+{
+  char** rawFlags = new char*[ flags.size() ];
+  unsigned int index    = 0;
+
+  for( auto&& flag : flags )
+  {
+    rawFlags[ index ] = new char[ flag.size() + 1 ];
+    std::fill( rawFlags[index], rawFlags[index] + flag.size() + 1, 0 );
+    std::copy( flag.begin(), flag.end(), rawFlags[index ] );
+  }
+
+  return rawFlags;
+}
+
 CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientData clientData )
 {
   if( clang_Location_isFromMainFile( clang_getCursorLocation( cursor ) ) == 0 )
     return CXChildVisit_Continue;
 
   CXCursorKind kind = clang_getCursorKind( cursor );
-  std::string name  = clang_getCString( clang_getCursorSpelling( cursor ) );
+  CXString nameStr  = clang_getCursorSpelling( cursor );
+ 
+  std::string name  = clang_getCString( nameStr );
+  
+  clang_disposeString( nameStr );
 
   if( kind == CXCursorKind::CXCursor_FunctionDecl || kind == CXCursorKind::CXCursor_CXXMethod || kind == CXCursorKind::CXCursor_FunctionTemplate )
   {
