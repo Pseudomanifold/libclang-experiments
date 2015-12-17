@@ -99,6 +99,13 @@ int main( int argc, char** argv )
           "-I/usr/local/include",
           "-I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed",
           "-I/usr/include/x86_64-linux-gnu",
+          "-I/usr/include",
+          "-I/usr/bin/../lib/gcc/x86_64-linux-gnu/5.2.1/../../../../include/c++/5.2.1",
+          "-I/usr/bin/../lib/gcc/x86_64-linux-gnu/5.2.1/../../../../include/x86_64-linux-gnu/c++/5.2.1",
+          "-I/usr/bin/../lib/gcc/x86_64-linux-gnu/5.2.1/../../../../include/c++/5.2.1/backward",
+          "-I/usr/local/include",
+          "-I/usr/lib/llvm-3.6/bin/../lib/clang/3.6.2/include",
+          "-I/usr/include/x86_64-linux-gnu",
           "-I/usr/include" };
 
     auto rawFlags = makeFlags( flags );
