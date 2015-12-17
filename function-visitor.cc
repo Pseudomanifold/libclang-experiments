@@ -112,9 +112,8 @@ int main( int argc, char** argv )
        "-I/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/backward",
        "-I/usr/local/include",
        "-I/usr/bin/../lib/clang/3.7.0/include",
-       "-I/usr/include"
-       "-x",
-       "c++"
+       "-I/usr/include",
+       "-I/home/bastian/PhD/Scifer/src"
       };
 
     auto rawFlags = makeFlags( flags );

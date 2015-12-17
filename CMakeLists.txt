@@ -13,7 +13,9 @@ FIND_PACKAGE( libclang REQUIRED )
 INCLUDE_DIRECTORIES( ${LIBCLANG_INCLUDE_DIRS} SYSTEM )
 
 ADD_EXECUTABLE( function-visitor
+  arguments.cc
   function-visitor.cc
+  path_utilities.cc
 )
 
 TARGET_LINK_LIBRARIES( function-visitor ${LIBCLANG_LIBRARIES} )
