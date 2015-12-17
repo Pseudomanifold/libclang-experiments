@@ -21,16 +21,18 @@ std::string resolvePath( const char* path )
   return result;
 }
 
-char** makeFlags( const std::vector<std::string> flags )
+char** makeFlags( const std::vector<std::string>& flags )
 {
-  char** rawFlags = new char*[ flags.size() ];
-  unsigned int index    = 0;
+  char** rawFlags    = new char*[ flags.size() ];
+  unsigned int index = 0;
 
   for( auto&& flag : flags )
   {
     rawFlags[ index ] = new char[ flag.size() + 1 ];
-    std::fill( rawFlags[index], rawFlags[index] + flag.size() + 1, 0 );
+    std::fill( rawFlags[index], rawFlags[index] + flag.size(), 0 );
     std::copy( flag.begin(), flag.end(), rawFlags[index ] );
+
+    ++index;
   }
 
   return rawFlags;
@@ -89,8 +91,20 @@ int main( int argc, char** argv )
 
   if( numCompileCommands == 0 )
   {
+    std::vector<std::string> flags
+      = { "-I/usr/include/c++/5",
+          "-I/usr/include/x86_64-linux-gnu/c++/5",
+          "-I/usr/include/c++/5/backward",
+          "-I/usr/lib/gcc/x86_64-linux-gnu/5/include",
+          "-I/usr/local/include",
+          "-I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed",
+          "-I/usr/include/x86_64-linux-gnu",
+          "-I/usr/include" };
+
+    auto rawFlags = makeFlags( flags );
+
     CXIndex index                     = clang_createIndex( false, true );
-    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, resolvedPath.c_str(), nullptr, 0, 0, 0, CXTranslationUnit_None );
+    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, resolvedPath.c_str(), rawFlags, flags.size(), 0, 0, CXTranslationUnit_None );
 
     CXCursor rootCursor = clang_getTranslationUnitCursor( translationUnit );
     clang_visitChildren( rootCursor, functionVisitor, nullptr );
