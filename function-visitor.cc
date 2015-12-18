@@ -77,35 +77,19 @@ int main( int argc, char** argv )
 
   if( numCompileCommands == 0 )
   {
-    std::vector<std::string> flags
-      = { "-I/usr/include/c++/5",
-          "-I/usr/include/x86_64-linux-gnu/c++/5",
-          "-I/usr/include/c++/5/backward",
-          "-I/usr/lib/gcc/x86_64-linux-gnu/5/include",
-          "-I/usr/local/include",
-          "-I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed",
-          "-I/usr/include/x86_64-linux-gnu",
-          "-I/usr/include",
-          "-I/usr/bin/../lib/gcc/x86_64-linux-gnu/5.2.1/../../../../include/c++/5.2.1",
-          "-I/usr/bin/../lib/gcc/x86_64-linux-gnu/5.2.1/../../../../include/x86_64-linux-gnu/c++/5.2.1",
-          "-I/usr/bin/../lib/gcc/x86_64-linux-gnu/5.2.1/../../../../include/c++/5.2.1/backward",
-          "-I/usr/local/include",
-          "-I/usr/lib/llvm-3.6/bin/../lib/clang/3.6.2/include",
-          "-I/usr/include/x86_64-linux-gnu",
-          "-I/usr/include",
-       "-I/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0",
-       "-I/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/x86_64-unknown-linux-gnu",
-       "-I/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/5.3.0/../../../../include/c++/5.3.0/backward",
-       "-I/usr/local/include",
-       "-I/usr/bin/../lib/clang/3.7.0/include",
-       "-I/usr/include",
-       "-I/home/bastian/PhD/Scifer/src"
-      };
+    const char* args[] = { "-std=c++11",
+                           "-I/usr/include",
+                           "-I/export/home/brieck/PhD/Scifer/src",
+                           "-I/export/home/brieck/Local/cgal-4.7/include",
+                           "-I/usr/include/x86_64-linux-gnu",
+                           "-I/export/home/brieck/Local/nlopt-2.4.2/include",
+                           "-I/export/home/brieck/Local/llvm/bin/../lib/clang/3.8.0/include",
+                           "-I/usr/local/include" };
 
-    auto rawFlags = makeFlags( flags );
+    //auto rawFlags = makeFlags( flags );
 
     CXIndex index                     = clang_createIndex( false, true );
-    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, resolvedPath.c_str(), rawFlags, flags.size(), 0, 0, CXTranslationUnit_None );
+    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, resolvedPath.c_str(), args, 8, 0, 0, CXTranslationUnit_None );
 
     CXCursor rootCursor = clang_getTranslationUnitCursor( translationUnit );
     clang_visitChildren( rootCursor, functionVisitor, nullptr );
