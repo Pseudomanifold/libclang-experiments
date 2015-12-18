@@ -5,24 +5,8 @@
 #include <iostream>
 #include <string>
 
+#include "arguments.hh"
 #include "path_utilities.hh"
-
-char** makeFlags( const std::vector<std::string>& flags )
-{
-  char** rawFlags    = new char*[ flags.size() ];
-  unsigned int index = 0;
-
-  for( auto&& flag : flags )
-  {
-    rawFlags[ index ] = new char[ flag.size() + 1 ];
-    std::fill( rawFlags[index], rawFlags[index] + flag.size(), 0 );
-    std::copy( flag.begin(), flag.end(), rawFlags[index ] );
-
-    ++index;
-  }
-
-  return rawFlags;
-}
 
 CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXClientData /* clientData */ )
 {
@@ -75,21 +59,23 @@ int main( int argc, char** argv )
   unsigned int numCompileCommands = clang_CompileCommands_getSize( compileCommands );
   std::cerr << "I have obtained " << numCompileCommands << " compile commands\n"; 
 
-  if( numCompileCommands == 0 )
+  if( numCompileCommands != 0 )
   {
-    const char* args[] = { "-std=c++11",
-                           "-I/usr/include",
-                           "-I/export/home/brieck/PhD/Scifer/src",
-                           "-I/export/home/brieck/Local/cgal-4.7/include",
-                           "-I/usr/include/x86_64-linux-gnu",
-                           "-I/export/home/brieck/Local/nlopt-2.4.2/include",
-                           "-I/export/home/brieck/Local/llvm/bin/../lib/clang/3.8.0/include",
-                           "-I/usr/local/include" };
+    Arguments arguments;
+    arguments.addArgument( "-std=c++11" );
+    arguments.addArgument( "-I/usr/include" );
+    arguments.addArgument( "-I/export/home/brieck/PhD/Scifer/src" );
+    arguments.addArgument( "-I/export/home/brieck/Local/cgal-4.7/include" );
+    arguments.addArgument( "-I/usr/include/x86_64-linux-gnu" );
+    arguments.addArgument( "-I/usr/include/x86_64-linux-gnu" );
+    arguments.addArgument( "-I/export/home/brieck/Local/nlopt-2.4.2/include" );
+    arguments.addArgument( "-I/export/home/brieck/Local/llvm/bin/../lib/clang/3.8.0/include" );
+    arguments.addArgument( "-I/usr/local/include" );
 
-    //auto rawFlags = makeFlags( flags );
+    auto rawArguments = arguments.getRawArguments();
 
     CXIndex index                     = clang_createIndex( false, true );
-    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, resolvedPath.c_str(), args, 8, 0, 0, CXTranslationUnit_None );
+    CXTranslationUnit translationUnit = clang_parseTranslationUnit( index, resolvedPath.c_str(), rawArguments, 9, 0, 0, CXTranslationUnit_None );
 
     CXCursor rootCursor = clang_getTranslationUnitCursor( translationUnit );
     clang_visitChildren( rootCursor, functionVisitor, nullptr );
