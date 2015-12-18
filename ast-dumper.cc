@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
 std::string getCursorKindName( CXCursorKind cursorKind )
 {
@@ -9,7 +10,15 @@ std::string getCursorKindName( CXCursorKind cursorKind )
   std::string result = clang_getCString( kindName );
 
   clang_disposeString( kindName );
+  return result;
+}
 
+std::string getCursorSpelling( CXCursor cursor )
+{
+  CXString cursorSpelling = clang_getCursorSpelling( cursor );
+  std::string result      = clang_getCString( cursorSpelling );
+
+  clang_disposeString( cursorSpelling );
   return result;
 }
 
@@ -24,7 +33,19 @@ CXChildVisitResult visitor( CXCursor cursor, CXCursor parent, CXClientData clien
   unsigned int curLevel  = *( reinterpret_cast<unsigned int*>( clientData ) );
   unsigned int nextLevel = curLevel + 1;
 
-  std::cout << std::string( curLevel, '-' ) << " " << getCursorKindName( cursorKind ) << "\n";
+  bool isFunctionOrMethod = cursorKind == CXCursorKind::CXCursor_CXXMethod
+                         || cursorKind == CXCursorKind::CXCursor_FunctionDecl
+                         || cursorKind == CXCursorKind::CXCursor_FunctionTemplate;
+
+  std::ostringstream stream;
+  stream << std::string( curLevel, '-' ) << " " << getCursorKindName( cursorKind );
+
+  if( isFunctionOrMethod )
+    stream << " (" << getCursorSpelling( cursor ) << ")\n";
+  else
+    stream << "\n";
+
+  std::cout << stream.str();
 
   clang_visitChildren( cursor, visitor, &nextLevel );
   return CXChildVisit_Continue;
