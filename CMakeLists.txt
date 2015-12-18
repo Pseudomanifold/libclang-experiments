@@ -18,4 +18,9 @@ ADD_EXECUTABLE( function-visitor
   path_utilities.cc
 )
 
+ADD_EXECUTABLE( ast-dumper
+  ast-dumper.cc
+)
+
 TARGET_LINK_LIBRARIES( function-visitor ${LIBCLANG_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ast-dumper ${LIBCLANG_LIBRARIES} )
