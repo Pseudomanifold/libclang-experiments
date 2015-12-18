@@ -59,7 +59,7 @@ int main( int argc, char** argv )
   unsigned int numCompileCommands = clang_CompileCommands_getSize( compileCommands );
   std::cerr << "I have obtained " << numCompileCommands << " compile commands\n"; 
 
-  if( numCompileCommands != 0 )
+  if( numCompileCommands == 0 )
   {
     Arguments arguments;
     arguments.addArgument( "-std=c++11" );
