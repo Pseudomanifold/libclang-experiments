@@ -24,10 +24,10 @@ char** makeFlags( const std::vector<std::string>& flags )
   return rawFlags;
 }
 
-CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientData clientData )
+CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXClientData /* clientData */ )
 {
   if( clang_Location_isFromMainFile( clang_getCursorLocation( cursor ) ) == 0 )
-    return CXChildVisit_Recurse;
+    return CXChildVisit_Continue;
 
   CXCursorKind kind = clang_getCursorKind( cursor );
   CXString nameStr  = clang_getCursorSpelling( cursor );
@@ -38,7 +38,7 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
 
   if( kind == CXCursorKind::CXCursor_FunctionDecl || kind == CXCursorKind::CXCursor_CXXMethod || kind == CXCursorKind::CXCursor_FunctionTemplate )
   {
-    std::cerr << __PRETTY_FUNCTION__ << ": Detected a function declaration: " << name << std::endl;
+    std::cerr << "Detected a function declaration: " << name << std::endl;
 
     CXSourceRange extent           = clang_getCursorExtent( cursor );
     CXSourceLocation startLocation = clang_getRangeStart( extent );
