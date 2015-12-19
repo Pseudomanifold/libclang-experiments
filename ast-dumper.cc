@@ -30,11 +30,45 @@ CXChildVisitResult countDepth( CXCursor /* cursor */, CXCursor /* parent */, CXC
   return CXChildVisit_Recurse;
 }
 
-CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXClientData /* clientData */ )
+CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXClientData clientData )
 {
   CXCursorKind cursorKind = clang_getCursorKind( cursor );
 
+  unsigned int* curLevel   = reinterpret_cast<unsigned int*>( clientData );
   unsigned int numChildren = 0;
+
+  if( *curLevel == 0 && cursorKind == CXCursor_ParmDecl )
+  {
+    std::cout << "CXCursor_ParmDecl\n";
+
+    CXToken* tokens        = nullptr;
+    unsigned int numTokens = 0;
+
+    auto&& translationUnit = clang_Cursor_getTranslationUnit( cursor );
+
+    clang_tokenize( translationUnit,
+                    clang_getCursorExtent( cursor ),
+                    &tokens,
+                    &numTokens );
+
+    for( unsigned int i = 0; i < numTokens; i++ )
+    {
+      auto&& token = tokens[i];
+
+      CXString tokenSpelling = clang_getTokenSpelling( translationUnit,
+                                                       token );
+
+      std::cout << clang_getCString( tokenSpelling ) << " ";
+
+      clang_disposeString( tokenSpelling );
+    }
+
+    std::cout << "\n";
+
+    clang_disposeTokens( translationUnit,
+                         tokens,
+                         numTokens );
+  }
 
   clang_visitChildren( cursor,
                        countDepth,
@@ -72,7 +106,9 @@ CXChildVisitResult visitor( CXCursor cursor, CXCursor parent, CXClientData clien
   std::cout << stream.str();
 
   if( isFunctionOrMethod && curLevel == 0 )
-    clang_visitChildren( cursor, functionVisitor, nullptr );
+  {
+    clang_visitChildren( cursor, functionVisitor, &curLevel );
+  }
 
   return CXChildVisit_Continue;
 }
