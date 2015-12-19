@@ -17,6 +17,22 @@ unsigned int factorial( unsigned int i )
 {
   if( i == 0 )
     return 1;
-  else
-    return i * factorial( i - 1 );
+
+  return i * factorial( i - 1 );
+}
+
+unsigned int fibonacci( unsigned int k )
+{
+  unsigned int N = 0;
+  unsigned int a = 0;
+  unsigned int b = 1;
+
+  for( unsigned int i = 0; i < k; i++ )
+  {
+    N = a + b;
+    a = b;
+    b = N;
+  }
+
+  return N;
 }
