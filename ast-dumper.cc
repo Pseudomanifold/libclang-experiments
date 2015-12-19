@@ -91,10 +91,12 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXCl
     auto itPos = typeToNodeMap.find( getCursorKindName( cursorKind ) );
     if( itPos != typeToNodeMap.end() )
       note = itPos->second;
+    else
+      std::cerr << getCursorKindName( cursorKind ) << ": No note assigned\n";
   }
 
   if( !note.empty() )
-    std::cout << note << ":" << length << "\n";
+    std::cout << note << length << " ";
 
   return CXChildVisit_Continue;
 }
@@ -107,8 +109,7 @@ CXChildVisitResult visitor( CXCursor cursor, CXCursor parent, CXClientData clien
 
   CXCursorKind cursorKind = clang_getCursorKind( cursor );
 
-  unsigned int curLevel  = *( reinterpret_cast<unsigned int*>( clientData ) );
-  unsigned int nextLevel = curLevel + 1;
+  unsigned int curLevel = *( reinterpret_cast<unsigned int*>( clientData ) );
 
   bool isFunctionOrMethod = cursorKind == CXCursorKind::CXCursor_CXXMethod
                          || cursorKind == CXCursorKind::CXCursor_FunctionDecl
@@ -122,11 +123,23 @@ CXChildVisitResult visitor( CXCursor cursor, CXCursor parent, CXClientData clien
   else
     stream << "\n";
 
-  std::cout << stream.str();
+  std::cerr << stream.str();
 
-  if( isFunctionOrMethod && curLevel == 0 )
+  bool visitFunction =  isFunctionOrMethod && (   curLevel == 0
+                                               || clang_getCursorKind( parent ) == CXCursor_Namespace );
+
+  if( visitFunction )
   {
+    unsigned int curLevel = 0;
     clang_visitChildren( cursor, functionVisitor, &curLevel );
+  }
+  else
+  {
+    unsigned int nextLevel = curLevel + 1;
+
+    clang_visitChildren( cursor,
+                         visitor,
+                         &nextLevel ); 
   }
 
   return CXChildVisit_Continue;
@@ -145,6 +158,12 @@ int main( int argc, char** argv )
   // check the documentation here...
 
   unsigned int treeLevel = 0;
+
+  std::cout << "X:1\n"
+            << "T:" << argv[1] << "\n"
+            << "M:C\n"
+            << "L:1/16\n"
+            << "K:C\n";
 
   clang_visitChildren( rootCursor, visitor, &treeLevel );
 
