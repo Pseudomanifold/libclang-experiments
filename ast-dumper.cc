@@ -1,8 +1,18 @@
 #include <clang-c/Index.h>
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <sstream>
+
+std::map<std::string, std::string> typeToNodeMap =
+{
+    { "DeclStmt"  , "C" },
+    { "ForStmt"   , "D" },
+    { "ParmDecl"  , "E" },
+    { "IfStmt"    , "F" },
+    { "ReturnStmt", "G" }
+};
 
 std::string getCursorKindName( CXCursorKind cursorKind )
 {
@@ -33,14 +43,13 @@ CXChildVisitResult countDepth( CXCursor /* cursor */, CXCursor /* parent */, CXC
 CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXClientData clientData )
 {
   CXCursorKind cursorKind = clang_getCursorKind( cursor );
+  unsigned int* curLevel  = reinterpret_cast<unsigned int*>( clientData );
 
-  unsigned int* curLevel   = reinterpret_cast<unsigned int*>( clientData );
-  unsigned int numChildren = 0;
+  std::string  note;
+  unsigned int length = 0;
 
   if( *curLevel == 0 && cursorKind == CXCursor_ParmDecl )
   {
-    std::cout << "CXCursor_ParmDecl\n";
-
     CXToken* tokens        = nullptr;
     unsigned int numTokens = 0;
 
@@ -51,31 +60,41 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXCl
                     &tokens,
                     &numTokens );
 
-    for( unsigned int i = 0; i < numTokens; i++ )
-    {
-      auto&& token = tokens[i];
-
-      CXString tokenSpelling = clang_getTokenSpelling( translationUnit,
-                                                       token );
-
-      std::cout << clang_getCString( tokenSpelling ) << " ";
-
-      clang_disposeString( tokenSpelling );
-    }
-
-    std::cout << "\n";
+    note   = typeToNodeMap.at( getCursorKindName( cursorKind ) );
+    length = numTokens;
 
     clang_disposeTokens( translationUnit,
                          tokens,
                          numTokens );
   }
 
-  clang_visitChildren( cursor,
-                       countDepth,
-                       &numChildren );
+  // The function body is usually taken to be a compound statement. This
+  // compound statement should then be further parsed.
+  else if( *curLevel == 0 && cursorKind == CXCursor_CompoundStmt )
+  {
+    unsigned int nextLevel = *curLevel + 1;
 
-  std::cout << __PRETTY_FUNCTION__ << ": " << getCursorKindName( cursorKind ) << "\n"
-            << "  " << numChildren << "\n";
+    clang_visitChildren( cursor,
+                         functionVisitor,
+                         &nextLevel );
+  }
+  else if( *curLevel > 0 )
+  {
+    unsigned int numChildren = 0;
+
+    clang_visitChildren( cursor,
+                         countDepth,
+                         &numChildren );
+
+    length = numChildren;
+
+    auto itPos = typeToNodeMap.find( getCursorKindName( cursorKind ) );
+    if( itPos != typeToNodeMap.end() )
+      note = itPos->second;
+  }
+
+  if( !note.empty() )
+    std::cout << note << ":" << length << "\n";
 
   return CXChildVisit_Continue;
 }
