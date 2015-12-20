@@ -22,5 +22,10 @@ ADD_EXECUTABLE( ast-dumper
   ast-dumper.cc
 )
 
+ADD_EXECUTABLE( stockhausen
+  stockhausen.cc
+)
+
 TARGET_LINK_LIBRARIES( function-visitor ${LIBCLANG_LIBRARIES} )
-TARGET_LINK_LIBRARIES( ast-dumper ${LIBCLANG_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ast-dumper       ${LIBCLANG_LIBRARIES} )
+TARGET_LINK_LIBRARIES( stockhausen      ${LIBCLANG_LIBRARIES} )
