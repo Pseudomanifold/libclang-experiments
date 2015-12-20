@@ -51,6 +51,37 @@ CXChildVisitResult visitor( CXCursor cursor, CXCursor /* parent */, CXClientData
   else
     stream << "\n";
 
+  {
+    auto&& translationUnit = clang_Cursor_getTranslationUnit( cursor );
+    auto&& range           = clang_getCursorExtent( cursor );
+
+    CXToken* tokens        = nullptr;
+    unsigned int numTokens = 0;
+
+    clang_tokenize( translationUnit,
+                    range,
+                    &tokens,
+                    &numTokens );
+
+    stream << std::string( curLevel, ' ' ) << "  ";
+
+    for( unsigned int i = 0; i < numTokens; i++ )
+    {
+      CXString tokenSpelling = clang_getTokenSpelling( translationUnit, tokens[i] );
+
+      if( i != 0 )
+        stream << " ";
+
+      stream << clang_getCString( tokenSpelling );
+
+      clang_disposeString( tokenSpelling );
+    }
+
+    stream << "\n";
+
+    clang_disposeTokens( translationUnit, tokens, numTokens );
+  }
+
   std::cerr << stream.str();
 
   unsigned int nextLevel = curLevel + 1;

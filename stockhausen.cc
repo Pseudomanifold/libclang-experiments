@@ -16,9 +16,10 @@ std::map<std::string, std::string> typeToNoteMap1 =
 
 std::map<std::string, std::string> typeToNoteMap2 =
 {
-  { "DeclRefExpr"   , "C" },
-  { "ParmDecl"      , "C" },
-  { "BinaryOperator", "G" },
+  { "DeclRefExpr"   , "G" },
+  { "ParmDecl"      , "G" },
+  { "DeclStmt"      , "G" },
+  { "BinaryOperator", "C" },
   { "ReturnStmt"    , "E" },
   { "CallExpr"      , "A" },
   { "BinaryOperator", "D" },
@@ -95,7 +96,7 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
                          functionVisitor,
                          &nextLevel );
   }
-  else if( *curLevel > 0 )
+  else if( !parentIsFunction )
   {
     unsigned int numChildren = 0;
 
@@ -104,6 +105,9 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
                          &numChildren );
 
     length = numChildren;
+
+    if( length > 8 )
+      length = 8;
 
     auto itPos = typeToNoteMap2.find( getCursorKindName( cursorKind ) );
     if( itPos != typeToNoteMap2.end() )
