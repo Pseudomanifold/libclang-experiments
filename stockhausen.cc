@@ -1,5 +1,6 @@
 #include <clang-c/Index.h>
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <string>
@@ -16,9 +17,9 @@ std::map<std::string, std::string> typeToNoteMap1 =
 
 std::map<std::string, std::string> typeToNoteMap2 =
 {
-  //{ "DeclRefExpr"   , "G"  },
-  { "ParmDecl"      , "G" },
-  { "DeclStmt"      , "G" },
+  { "DeclRefExpr"   , "G" },
+  { "ParmDecl"      , "G"  },
+  { "DeclStmt"      , "G"  },
   { "BinaryOperator", "C"  },
   { "ReturnStmt"    , "E"  },
   { "CallExpr"      , "A"  },
@@ -128,7 +129,17 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
                        &nextLevel );
 
   if( !note.empty() )
-    std::cout << note << length << " ";
+  {
+    unsigned int octave = *curLevel < 2 ? *curLevel : 2;
+    if( octave >= 1 )
+    {
+      std::transform( note.begin(), note.end(), note.begin(), ::tolower );
+      --octave;
+    }
+
+    std::cout << note << std::string( octave, '\'' ) << length << " ";
+  }
+
 
   return CXChildVisit_Continue;
 }
