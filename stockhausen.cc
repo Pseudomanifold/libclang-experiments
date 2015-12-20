@@ -51,15 +51,20 @@ CXChildVisitResult countDepth( CXCursor /* cursor */, CXCursor /* parent */, CXC
   return CXChildVisit_Recurse;
 }
 
-CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXClientData clientData )
+CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientData clientData )
 {
+  CXCursorKind parentKind = clang_getCursorKind( parent );
   CXCursorKind cursorKind = clang_getCursorKind( cursor );
   unsigned int* curLevel  = reinterpret_cast<unsigned int*>( clientData );
 
   std::string  note;
   unsigned int length = 0;
 
-  if( *curLevel == 0 && cursorKind == CXCursor_ParmDecl )
+  bool parentIsFunction =  ( parentKind == CXCursor_FunctionDecl )
+                        || ( parentKind == CXCursor_FunctionTemplate )
+                        || ( parentKind == CXCursor_CXXMethod );
+
+  if( parentIsFunction && cursorKind == CXCursor_ParmDecl )
   {
     CXToken* tokens        = nullptr;
     unsigned int numTokens = 0;
@@ -81,7 +86,7 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXCl
 
   // The function body is usually taken to be a compound statement. This
   // compound statement should then be further parsed.
-  else if( *curLevel == 0 && cursorKind == CXCursor_CompoundStmt )
+  else if( parentIsFunction && cursorKind == CXCursor_CompoundStmt )
   {
     unsigned int nextLevel = *curLevel + 1;
 
