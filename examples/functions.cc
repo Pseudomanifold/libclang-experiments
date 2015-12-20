@@ -3,6 +3,11 @@ int theAnswerToLifeTheUniverseAndEverything()
   return 42;
 }
 
+int sum( int a, int b, int c )
+{
+  return a + b + c;
+}
+
 int square( int x )
 {
   return x*x;
