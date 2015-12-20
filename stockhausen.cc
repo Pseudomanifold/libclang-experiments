@@ -16,15 +16,15 @@ std::map<std::string, std::string> typeToNoteMap1 =
 
 std::map<std::string, std::string> typeToNoteMap2 =
 {
-  { "DeclRefExpr"   , "G" },
+  //{ "DeclRefExpr"   , "G"  },
   { "ParmDecl"      , "G" },
   { "DeclStmt"      , "G" },
-  { "BinaryOperator", "C" },
-  { "ReturnStmt"    , "E" },
-  { "CallExpr"      , "A" },
-  { "BinaryOperator", "D" },
-  { "IfStmt"        , "F" },
-  { "ForStmt"       , "B" }
+  { "BinaryOperator", "C"  },
+  { "ReturnStmt"    , "E"  },
+  { "CallExpr"      , "A"  },
+  { "BinaryOperator", "D"  },
+  { "IfStmt"        , "F"  },
+  { "ForStmt"       , "B"  }
 };
 
 std::string getCursorKindName( CXCursorKind cursorKind )
@@ -85,17 +85,6 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
                          tokens,
                          numTokens );
   }
-
-  // The function body is usually taken to be a compound statement. This
-  // compound statement should then be further parsed.
-  else if( parentIsFunction && cursorKind == CXCursor_CompoundStmt )
-  {
-    unsigned int nextLevel = *curLevel + 1;
-
-    clang_visitChildren( cursor,
-                         functionVisitor,
-                         &nextLevel );
-  }
   else if( !parentIsFunction )
   {
     unsigned int numChildren = 0;
@@ -106,6 +95,22 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
 
     length = numChildren;
 
+    auto&& translationUnit = clang_Cursor_getTranslationUnit( cursor );
+    auto&& extent          = clang_getCursorExtent( cursor );
+    CXToken* tokens        = nullptr;
+    unsigned int numTokens = 0;
+
+    clang_tokenize( translationUnit,
+                    extent,
+                    &tokens,
+                    &numTokens );
+
+    // FIXME: Make this configurable. Different ways of traversing the tree
+    // might be interesting...
+    length = numTokens;
+
+    clang_disposeTokens( translationUnit, tokens, numTokens );
+
     if( length > 8 )
       length = 8;
 
@@ -115,6 +120,12 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
     else
       std::cerr << getCursorKindName( cursorKind ) << ": No note assigned\n";
   }
+
+  unsigned int nextLevel = *curLevel + 1;
+
+  clang_visitChildren( cursor,
+                       functionVisitor,
+                       &nextLevel );
 
   if( !note.empty() )
     std::cout << note << length << " ";
@@ -153,6 +164,8 @@ CXChildVisitResult visitor( CXCursor cursor, CXCursor parent, CXClientData clien
   {
     unsigned int curLevel = 0;
     clang_visitChildren( cursor, functionVisitor, &curLevel );
+
+    std::cout << "Z\n";
   }
   else
   {
