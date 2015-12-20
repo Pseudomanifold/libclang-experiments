@@ -17,15 +17,18 @@ std::map<std::string, std::string> typeToNoteMap1 =
 
 std::map<std::string, std::string> typeToNoteMap2 =
 {
-  { "DeclRefExpr"   , "G" },
   { "ParmDecl"      , "G"  },
+  { "VarDecl"       , "G"  },
   { "DeclStmt"      , "G"  },
+  { "DeclRefExpr"   , "C" },
   { "BinaryOperator", "C"  },
   { "ReturnStmt"    , "E"  },
   { "CallExpr"      , "A"  },
+  { "MemberRefExpr" , "A"  },
   { "BinaryOperator", "D"  },
   { "IfStmt"        , "F"  },
-  { "ForStmt"       , "B"  }
+  { "ForStmt"       , "B"  },
+  { "ContinueStmt"  , "B"  }
 };
 
 std::string getCursorKindName( CXCursorKind cursorKind )
@@ -122,15 +125,13 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
       std::cerr << getCursorKindName( cursorKind ) << ": No note assigned\n";
   }
 
-  unsigned int nextLevel = *curLevel + 1;
-
-  clang_visitChildren( cursor,
-                       functionVisitor,
-                       &nextLevel );
-
   if( !note.empty() )
   {
     unsigned int octave = *curLevel < 2 ? *curLevel : 2;
+
+    if( octave >= 1 )
+      --octave;
+
     if( octave >= 1 )
     {
       std::transform( note.begin(), note.end(), note.begin(), ::tolower );
@@ -139,6 +140,12 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
 
     std::cout << note << std::string( octave, '\'' ) << length << " ";
   }
+
+  unsigned int nextLevel = *curLevel + 1;
+
+  clang_visitChildren( cursor,
+                       functionVisitor,
+                       &nextLevel );
 
 
   return CXChildVisit_Continue;
