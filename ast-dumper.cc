@@ -1,8 +1,12 @@
 #include <clang-c/Index.h>
 
+#include <algorithm>
 #include <iostream>
+#include <map>
 #include <string>
 #include <sstream>
+
+std::map<std::string, unsigned int> counter; 
 
 std::string getCursorKindName( CXCursorKind cursorKind )
 {
@@ -36,8 +40,11 @@ CXChildVisitResult visitor( CXCursor cursor, CXCursor /* parent */, CXClientData
                          || cursorKind == CXCursorKind::CXCursor_FunctionDecl
                          || cursorKind == CXCursorKind::CXCursor_FunctionTemplate;
 
+  auto name       = getCursorKindName( cursorKind );
+  counter[ name ] = counter[ name ] + 1;
+
   std::ostringstream stream;
-  stream << std::string( curLevel, '-' ) << " " << getCursorKindName( cursorKind );
+  stream << std::string( curLevel, '-' ) << " " << name;
 
   if( isFunctionOrMethod )
     stream << " (" << getCursorSpelling( cursor ) << ")\n";
@@ -76,5 +83,27 @@ int main( int argc, char** argv )
 
   clang_disposeTranslationUnit( tu );
   clang_disposeIndex( index );
+
+  std::vector<std::string> cursorKinds;
+  cursorKinds.reserve( counter.size() );
+
+  for( auto&& pair : counter )
+    cursorKinds.push_back( pair.first );
+
+  std::sort( cursorKinds.begin(), cursorKinds.end(),
+             [&counter] ( const std::string& s1, const std::string& s2 )
+             {
+               return counter.at( s1 ) > counter.at( s2 );
+             } );
+
+  {
+    std::ostringstream stream;
+
+    for( auto&& cursorKind : cursorKinds )
+      stream << cursorKind << ": " << counter.at( cursorKind ) << "\n";
+
+    std::cerr << stream.str();
+  }
+
   return 0;
 }
