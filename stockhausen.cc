@@ -16,10 +16,11 @@ std::map<std::string, std::string> typeToNoteMap1 =
 
 std::map<std::string, std::string> typeToNoteMap2 =
 {
-  { "DeclRefExpr",    "C" },
+  { "DeclRefExpr"   , "C" },
+  { "ParmDecl"      , "C" },
   { "BinaryOperator", "G" },
-  { "ReturnStmt",     "E" },
-  { "CallExpr",       "A" },
+  { "ReturnStmt"    , "E" },
+  { "CallExpr"      , "A" },
   { "BinaryOperator", "D" },
   { "IfStmt"        , "F" },
   { "ForStmt"       , "B" }
@@ -76,7 +77,7 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
                     &tokens,
                     &numTokens );
 
-    note   = typeToNoteMap1.at( getCursorKindName( cursorKind ) );
+    note   = typeToNoteMap2.at( getCursorKindName( cursorKind ) );
     length = numTokens;
 
     clang_disposeTokens( translationUnit,
@@ -104,8 +105,8 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor parent, CXClientDa
 
     length = numChildren;
 
-    auto itPos = typeToNoteMap1.find( getCursorKindName( cursorKind ) );
-    if( itPos != typeToNoteMap1.end() )
+    auto itPos = typeToNoteMap2.find( getCursorKindName( cursorKind ) );
+    if( itPos != typeToNoteMap2.end() )
       note = itPos->second;
     else
       std::cerr << getCursorKindName( cursorKind ) << ": No note assigned\n";
