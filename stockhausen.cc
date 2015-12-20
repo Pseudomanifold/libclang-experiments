@@ -5,13 +5,24 @@
 #include <string>
 #include <sstream>
 
-std::map<std::string, std::string> typeToNodeMap =
+std::map<std::string, std::string> typeToNoteMap1 =
 {
     { "DeclStmt"  , "C" },
     { "ForStmt"   , "D" },
     { "ParmDecl"  , "E" },
     { "IfStmt"    , "F" },
     { "ReturnStmt", "G" }
+};
+
+std::map<std::string, std::string> typeToNoteMap2 =
+{
+  { "DeclRefExpr",    "C" },
+  { "BinaryOperator", "G" },
+  { "ReturnStmt",     "E" },
+  { "CallExpr",       "A" },
+  { "BinaryOperator", "D" },
+  { "IfStmt"        , "F" },
+  { "ForStmt"       , "B" }
 };
 
 std::string getCursorKindName( CXCursorKind cursorKind )
@@ -60,7 +71,7 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXCl
                     &tokens,
                     &numTokens );
 
-    note   = typeToNodeMap.at( getCursorKindName( cursorKind ) );
+    note   = typeToNoteMap1.at( getCursorKindName( cursorKind ) );
     length = numTokens;
 
     clang_disposeTokens( translationUnit,
@@ -88,8 +99,8 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXCl
 
     length = numChildren;
 
-    auto itPos = typeToNodeMap.find( getCursorKindName( cursorKind ) );
-    if( itPos != typeToNodeMap.end() )
+    auto itPos = typeToNoteMap1.find( getCursorKindName( cursorKind ) );
+    if( itPos != typeToNoteMap1.end() )
       note = itPos->second;
     else
       std::cerr << getCursorKindName( cursorKind ) << ": No note assigned\n";
