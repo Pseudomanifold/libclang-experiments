@@ -21,13 +21,13 @@ std::map<std::string, std::string> typeToNoteMap2 =
   { "VarDecl"       , "G"  },
   { "DeclStmt"      , "G"  },
   { "DeclRefExpr"   , "C" },
-  { "BinaryOperator", "C"  },
   { "ReturnStmt"    , "E"  },
   { "CallExpr"      , "A"  },
   { "MemberRefExpr" , "A"  },
-  { "BinaryOperator", "D"  },
+  { "UnaryOperator" , "D"  },
+  { "BinaryOperator", "^D" },
   { "IfStmt"        , "F"  },
-  { "ForStmt"       , "B"  },
+  { "ForStmt"       , "^F" },
   { "ContinueStmt"  , "B"  }
 };
 
