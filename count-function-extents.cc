@@ -58,8 +58,6 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXCl
 
   if( kind == CXCursorKind::CXCursor_FunctionDecl || kind == CXCursorKind::CXCursor_CXXMethod || kind == CXCursorKind::CXCursor_FunctionTemplate )
   {
-    std::cerr << "Detected a function declaration: " << name << std::endl;
-
     CXSourceRange extent           = clang_getCursorExtent( cursor );
     CXSourceLocation startLocation = clang_getRangeStart( extent );
     CXSourceLocation endLocation   = clang_getRangeEnd( extent );
@@ -69,7 +67,6 @@ CXChildVisitResult functionVisitor( CXCursor cursor, CXCursor /* parent */, CXCl
 
     clang_getSpellingLocation( startLocation, nullptr, &startLine, &startColumn, nullptr );
     clang_getSpellingLocation( endLocation,   nullptr, &endLine, &endColumn, nullptr );
-    std::cerr << "  Extent: " << startLine << "," << startColumn <<  "--" << endLine << "," << endColumn << "\n";
 
     std::cout << "  " << name << ": " << endLine - startLine << "\n";
   }
@@ -85,8 +82,6 @@ int main( int argc, char** argv )
   auto resolvedPath = resolvePath( argv[1] );
   std::cerr << "Parsing " << resolvedPath << "...\n";
 
-  std::cout << resolvedPath << "\n";
-
   CXCompilationDatabase_Error compilationDatabaseError;
   CXCompilationDatabase compilationDatabase = clang_CompilationDatabase_fromDirectory( ".", &compilationDatabaseError );
   CXCompileCommands compileCommands         = clang_CompilationDatabase_getCompileCommands( compilationDatabase, resolvedPath.c_str() );
@@ -94,7 +89,7 @@ int main( int argc, char** argv )
 
   std::cerr << "Obtained " << numCompileCommands << " compile commands\n";
 
-  CXIndex index = clang_createIndex( false, true );
+  CXIndex index = clang_createIndex( 0, 1 );
   CXTranslationUnit translationUnit;
 
   if( numCompileCommands == 0 )
