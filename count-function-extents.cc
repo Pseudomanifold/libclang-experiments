@@ -19,15 +19,6 @@ std::string getCursorSpelling( CXCursor cursor )
   return result;
 }
 
-std::string getCursorKindSpelling( CXCursorKind cursorKind )
-{
-  CXString kindName  = clang_getCursorKindSpelling( cursorKind );
-  std::string result = clang_getCString( kindName );
-
-  clang_disposeString( kindName );
-  return result;
-}
-
 /* Auxiliary function for resolving a (relative) path into an absolute path */
 std::string resolvePath( const char* path )
 {
