@@ -26,6 +26,11 @@ ADD_EXECUTABLE( stockhausen
   stockhausen.cc
 )
 
-TARGET_LINK_LIBRARIES( function-visitor ${LIBCLANG_LIBRARIES} )
-TARGET_LINK_LIBRARIES( ast-dumper       ${LIBCLANG_LIBRARIES} )
-TARGET_LINK_LIBRARIES( stockhausen      ${LIBCLANG_LIBRARIES} )
+ADD_EXECUTABLE( count-function-extents
+  count-function-extents.cc
+)
+
+TARGET_LINK_LIBRARIES( function-visitor       ${LIBCLANG_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ast-dumper             ${LIBCLANG_LIBRARIES} )
+TARGET_LINK_LIBRARIES( stockhausen            ${LIBCLANG_LIBRARIES} )
+TARGET_LINK_LIBRARIES( count-function-extents ${LIBCLANG_LIBRARIES} )

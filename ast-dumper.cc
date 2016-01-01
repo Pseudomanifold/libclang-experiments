@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 
-std::map<std::string, unsigned int> counter; 
+std::map<std::string, unsigned int> counter;
 
 std::string getCursorKindName( CXCursorKind cursorKind )
 {
@@ -122,7 +122,7 @@ int main( int argc, char** argv )
     cursorKinds.push_back( pair.first );
 
   std::sort( cursorKinds.begin(), cursorKinds.end(),
-             [&counter] ( const std::string& s1, const std::string& s2 )
+             [] ( const std::string& s1, const std::string& s2 )
              {
                return counter.at( s1 ) > counter.at( s2 );
              } );

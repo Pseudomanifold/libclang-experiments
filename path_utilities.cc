@@ -1,6 +1,6 @@
 #include "path_utilities.hh"
 
-#ifdef __unix__ 
+#ifdef __unix__
   #include <limits.h>
   #include <stdlib.h>
 #endif
