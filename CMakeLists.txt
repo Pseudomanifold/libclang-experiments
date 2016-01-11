@@ -22,6 +22,10 @@ ADD_EXECUTABLE( ast-dumper
   ast-dumper.cc
 )
 
+ADD_EXECUTABLE( ast-walker
+  ast-walker.cc
+)
+
 ADD_EXECUTABLE( stockhausen
   stockhausen.cc
 )
