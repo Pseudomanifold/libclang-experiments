@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
-PROJECT( See++ CXX )
+PROJECT( libclang-experiments CXX )
 
 SET( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
@@ -18,23 +18,13 @@ ADD_EXECUTABLE( function-visitor
   path_utilities.cc
 )
 
-ADD_EXECUTABLE( ast-dumper
-  ast-dumper.cc
-)
-
-ADD_EXECUTABLE( ast-walker
-  ast-walker.cc
-)
-
-ADD_EXECUTABLE( stockhausen
-  stockhausen.cc
-)
-
-ADD_EXECUTABLE( count-function-extents
-  count-function-extents.cc
-)
+ADD_EXECUTABLE( ast-dumper             ast-dumper.cc )
+ADD_EXECUTABLE( ast-walker             ast-walker.cc )
+ADD_EXECUTABLE( count-function-extents count-function-extents.cc )
+ADD_EXECUTABLE( stockhausen            stockhausen.cc )
 
 TARGET_LINK_LIBRARIES( function-visitor       ${LIBCLANG_LIBRARIES} )
 TARGET_LINK_LIBRARIES( ast-dumper             ${LIBCLANG_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ast-walker             ${LIBCLANG_LIBRARIES} )
 TARGET_LINK_LIBRARIES( stockhausen            ${LIBCLANG_LIBRARIES} )
 TARGET_LINK_LIBRARIES( count-function-extents ${LIBCLANG_LIBRARIES} )
