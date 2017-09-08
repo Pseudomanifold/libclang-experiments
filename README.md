@@ -13,10 +13,10 @@ while the second deals with [counting the extents of a function](http://bastian.
 
 # Building the examples
 
-  $ mkdir build
-  $ cd build
-  $ cmake ../
-  $ make
+    $ mkdir build
+    $ cd build
+    $ cmake ../
+    $ make
 
 # Obtaining an AST
 
@@ -25,11 +25,12 @@ abstract syntax tree, while others make use of a database of compile
 commands. In order to obtain an abstract syntax tree, call `clang` with
 the following parameters:
 
-  clang++ -std=c++11 -emit-ast tuple.cc
+    clang++ -std=c++11 -emit-ast FILE
 
 Optionally, you can add `-I` or any other parameter that is required for
 compiling a given program.
 
 # Additional information
 
-https://stackoverflow.com/questions/20280744/libclang-returns-too-much-info-about-function-declarations
+* https://clang.llvm.org/doxygen/group__CINDEX.html
+* https://stackoverflow.com/questions/20280744/libclang-returns-too-much-info-about-function-declarations
