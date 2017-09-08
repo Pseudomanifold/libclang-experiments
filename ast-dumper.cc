@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <vector>
 
 std::map<std::string, unsigned int> counter;
 
