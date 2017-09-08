@@ -1,0 +1,25 @@
+language: cpp
+
+os:
+  - linux
+
+env:
+  global:
+    - MAKEFLAGS="-j 2"
+
+dist: trusty
+sudo: false
+addons:
+  apt:
+    packages:
+      - clang
+      - libclang-dev
+
+compiler:
+  - clang
+
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
